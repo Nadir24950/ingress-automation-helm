@@ -1,0 +1,489 @@
+---
+clusterConfig:
+  name: funecap-digital-eks-integration
+  region: eu-west-3
+  compte: 717592681600
+  arnRole : arn:aws:iam::717592681600:role/AWSEKSAdminAccess
+  roleSessionName : sts-eks-integration
+
+  
+  cloudwatch:
+    FluentBitHttpServer: 'On'
+    FluentBitHttpPort : 2020
+    FluentBitReadFromHead : 'On'
+    FluentBitReadFromTail : 'On'
+
+  storage: 
+    dynamiqueStorageClass :
+      name: efs-sc
+      provisioningMode: efs-ap
+      fileSystemId: fs-056a2e4a0d9796f13
+      directoryPerms: 777
+      uid: 1000
+      gid: 1000
+      basePath: /digital
+    
+    staticStorageClass:
+      name: efs-sc-static
+      media_usine_site:
+        pv: 
+          name : media-usine-site
+          storage: 2Gi
+          accessModes :
+          - ReadWriteMany
+          pvrPolicy: Retain
+          volumeHandle: fs-03bcc00c7aca7cb43::fsap-0c0da157bc686579c
+      front_avdc_media:
+        pv: 
+          name : front-avdc-media
+          storage: 2Gi
+          accessModes :
+          - ReadWriteMany
+          pvrPolicy: Retain
+          volumeHandle: fs-03bcc00c7aca7cb43::fsap-0c0da157bc686579c
+
+
+  utils: 
+    phpmyadmin:
+      namespace : transverse
+      name: phpmyadmin
+      connexion: 
+        host: 
+        #phpmyadmin-mutual-extarnal-svc.transverse.svc.cluster.local
+          - 
+            name: mutual
+            adresse: funecap-mariadb-mutual-integration-mariadb.ckflvnbgw6lt.eu-west-3.rds.amazonaws.com
+        port: 3306
+        user: mastermutualdb
+        password : Funecap!Preprod
+      servicePort: 8080
+
+    kibanadigital:
+      namespace : transverse
+      name: kibanadigital
+      connexion: 
+        elastichost: vpc-funecap-elk-integration-hk7wrxszlkqx6qsszvdqqyvgz4.eu-west-3.es.amazonaws.com
+      servicePort: 80
+
+    kibanamarketdata:
+      namespace : transverse
+      name: kibanamarketdata
+      connexion: 
+        elastichost: vpc-funecap-elk-datamarket-int-iaogruyhj6hdninrperhjufi2u.eu-west-3.es.amazonaws.com
+      servicePort: 80
+
+  ingress: 
+    transvers:
+      namespace: transverse
+      name: transvers
+      cognito:
+        user_pool : arn:aws:cognito-idp:eu-west-3:717592681600:userpool/eu-west-3_CSLO7MG7y
+        domaine: funecap-digital-int
+        client_name: digital-transverse
+        client_id: MTN0cDRoMjgzMWw4bjBhYmIyaHRmbWI2dGw=
+        secret_id: MXE0OXFob25nbDUzZWJqcGNnZDVzMm9sdWtsZzg1cGNtanBscnRuaGFkZnI3ZXBlbDM0cw==
+
+      services:
+        phpmyadmin:
+          host: phpmyadmin.cloud.int.funecap-ops.com
+          dnsexternal : true
+          certifcat: arn:aws:acm:eu-west-3:717592681600:certificate/5d16baa3-4b4f-4a92-a726-308a6ec0fe6a
+          name: phpmyadmin
+          port: 8080
+          oidc: 
+            authorization_endpoint: https://funecap-digital-int.auth.eu-west-3.amazoncognito.com/oauth2/authorize
+            issuer: https://cognito-idp.eu-west-3.amazonaws.com/eu-west-3_CSLO7MG7y
+            token_endpoint: https://funecap-digital-int.auth.eu-west-3.amazoncognito.com/oauth2/token
+            userinfo_endpoint: https://funecap-digital-int.auth.eu-west-3.amazoncognito.com/oauth2/userInfo
+
+        kibanadigital:
+          host: kibanadigital.cloud.int.funecap-ops.com
+          dnsexternal : false
+          certifcat: arn:aws:acm:eu-west-3:717592681600:certificate/e19fb476-7568-4225-9936-982c026399d2
+          name: kibanadigital
+          port: 80
+          oidc: 
+            authorization_endpoint: https://funecap-digital-int.auth.eu-west-3.amazoncognito.com/oauth2/authorize
+            issuer: https://cognito-idp.eu-west-3.amazonaws.com/eu-west-3_CSLO7MG7y
+            token_endpoint: https://funecap-digital-int.auth.eu-west-3.amazoncognito.com/oauth2/token
+            userinfo_endpoint: https://funecap-digital-int.auth.eu-west-3.amazoncognito.com/oauth2/userInfo
+
+        kibanamarketdata:
+          host: kibanadatamarket.cloud.int.funecap-ops.com
+          dnsexternal : false
+          certifcat: arn:aws:acm:eu-west-3:717592681600:certificate/7c15b86f-c2d1-4e21-b851-41c9f6523b07
+          name: kibanamarketdata
+          port: 80
+          oidc: 
+            authorization_endpoint: https://funecap-digital-int.auth.eu-west-3.amazoncognito.com/oauth2/authorize
+            issuer: https://cognito-idp.eu-west-3.amazonaws.com/eu-west-3_CSLO7MG7y
+            token_endpoint: https://funecap-digital-int.auth.eu-west-3.amazoncognito.com/oauth2/token
+            userinfo_endpoint: https://funecap-digital-int.auth.eu-west-3.amazoncognito.com/oauth2/userInfo
+
+    usineasitebis:
+      name: usine-a-site-bis
+      namespace: usine-a-site
+      cognito:
+        user_pool : arn:aws:cognito-idp:eu-west-3:717592681600:userpool/eu-west-3_CSLO7MG7y
+        domaine: digital-roc-eclerc
+        client_name: digital-transverse
+        client_id: MzZtcmxudjlsMjc3MnA3aG9rMzUzZWFoaHE=
+        secret_id: MWp0b2s3djBjZmJhMWJnYzR0Njl0OGVwY2F1YWE2a3IzZDV1aWhtMmhnbnJkMzN2cW1rbQ==
+
+
+      services :
+        alerqiun:
+          host: eflowers.int.cloud.aviscom.tech
+          dnsexternal: false
+          certifcat: arn:aws:acm:eu-west-3:717592681600:certificate/8cc20713-56f2-4584-a871-326a67efb3fe
+          name: alerq
+          port: 80
+          oidc_off:
+            authorization_endpoint: https://funecap-digital-int.auth.eu-west-3.amazoncognito.com/oauth2/authorize
+            issuer: https://cognito-idp.eu-west-3.amazonaws.com/eu-west-3_CSLO7MG7y
+            token_endpoint: https://funecap-digital-int.auth.eu-west-3.amazoncognito.com/oauth2/token
+            userinfo_endpoint: https://funecap-digital-int.auth.eu-west-3.amazoncognito.com/oauth2/userInfo
+
+        serenicare_fo:
+          host: www.int.cloud.serenicare.fr
+          dnsexternal: false
+          certifcat: arn:aws:acm:eu-west-3:717592681600:certificate/bded2f74-43c1-4e3c-955d-fa9d10d610fd
+          name: ser-fo
+          port: 80
+          oidc_off:
+            authorization_endpoint: https://funecap-digital-int.auth.eu-west-3.amazoncognito.com/oauth2/authorize
+            issuer: https://cognito-idp.eu-west-3.amazonaws.com/eu-west-3_CSLO7MG7y
+            token_endpoint: https://funecap-digital-int.auth.eu-west-3.amazoncognito.com/oauth2/token
+            userinfo_endpoint: https://funecap-digital-int.auth.eu-west-3.amazoncognito.com/oauth2/userInfo
+
+        funecap:
+          host: int.cloud.funecap.group
+          dnsexternal: false
+          certifcat: arn:aws:acm:eu-west-3:717592681600:certificate/7c33c715-2947-4780-b419-783e213a130f
+          name: funecap
+          port: 80
+
+        gdv-aon:
+          host: gdv-aon.int.funecap-ops.com
+          dnsexternal: false
+          certifcat: arn:aws:acm:eu-west-3:717592681600:certificate/f87fc4f0-0ae3-4276-bf5f-2f853e21a768
+          name: gdv-aon
+          port: 80
+
+        gdv_uneo:
+          host: gdv-uneo.int.funecap-ops.com
+          dnsexternal: false
+          certifcat: arn:aws:acm:eu-west-3:717592681600:certificate/f0461812-2871-4805-a63e-f288f61391e2
+          name: gdv-uneo
+          port: 80
+        
+        scf_v3:
+          host: '*.scf-v3.int.cloud.crematoriums.fr'
+          host_be: '*.scf-v3.int.cloud.crematoriums.be'
+          dnsexternal: false
+          certifcat: arn:aws:acm:eu-west-3:717592681600:certificate/32fd2292-781f-4683-a2e6-e76434460d81
+          name: scf-v3
+          port: 80
+
+
+
+    usineasite: 
+      name: usine-a-site
+      namespace: usine-a-site
+      cognito:
+        user_pool : arn:aws:cognito-idp:eu-west-3:717592681600:userpool/eu-west-3_CSLO7MG7y
+        domaine: digital-roc-eclerc
+        client_name: digital-transverse
+        client_id: MzZtcmxudjlsMjc3MnA3aG9rMzUzZWFoaHE=
+        secret_id: MWp0b2s3djBjZmJhMWJnYzR0Njl0OGVwY2F1YWE2a3IzZDV1aWhtMmhnbnJkMzN2cW1rbQ==
+
+      services :
+        roc_eclerc:
+          host: int.cloud.roc-eclerc.fr
+          dnsexternal : false
+          certifcat: arn:aws:acm:eu-west-3:717592681600:certificate/d4b0eeb0-5f9a-437e-a9d1-35afabbeb23d
+          name: roc-eclerc
+          port: 80
+          oidc: 
+            authorization_endpoint: https://funecap-digital-int.auth.eu-west-3.amazoncognito.com/oauth2/authorize
+            issuer: https://cognito-idp.eu-west-3.amazonaws.com/eu-west-3_CSLO7MG7y
+            token_endpoint: https://funecap-digital-int.auth.eu-west-3.amazoncognito.com/oauth2/token
+            userinfo_endpoint: https://funecap-digital-int.auth.eu-west-3.amazoncognito.com/oauth2/userInfo
+        gdv:
+          host: gdv.int.aviscom.tech
+          dnsexternal: false
+          certifcat: arn:aws:acm:eu-west-3:717592681600:certificate/c377edb1-fe85-4c32-8aac-2c0fbe21d354
+          name: gdv
+          port: 80
+        roc_eclerc_v3:
+          host: v3.int.cloud.roc-eclerc.fr
+          dnsexternal: false
+          certifcat: arn:aws:acm:eu-west-3:717592681600:certificate/7377e228-a822-458e-9efc-8e872fe21524
+          name: roc-eclerc-v3
+          port: 80
+          oidc:
+            authorization_endpoint: https://funecap-digital-int.auth.eu-west-3.amazoncognito.com/oauth2/authorize
+            issuer: https://cognito-idp.eu-west-3.amazonaws.com/eu-west-3_CSLO7MG7y
+            token_endpoint: https://funecap-digital-int.auth.eu-west-3.amazoncognito.com/oauth2/token
+            userinfo_endpoint: https://funecap-digital-int.auth.eu-west-3.amazoncognito.com/oauth2/userInfogit
+        funecap_v3:
+          host: v3.int.cloud.funecap.group
+          dnsexternal: false
+          certifcat: arn:aws:acm:eu-west-3:717592681600:certificate/8606d6b6-5817-4d9f-a36a-54cdc846babc
+          name: funecap-v3
+          port: 80
+
+        avdc_v3:
+          host: v3.int.cloud.avis-de-deces.net
+          dnsexternal: false
+          certifcat: arn:aws:acm:eu-west-3:717592681600:certificate/ea047207-e54c-40a4-974d-5439ff8b2105
+          name: avdc-v3
+          port: 80
+          oidc:
+            authorization_endpoint: https://funecap-digital-int.auth.eu-west-3.amazoncognito.com/oauth2/authorize
+            issuer: https://cognito-idp.eu-west-3.amazonaws.com/eu-west-3_CSLO7MG7y
+            token_endpoint: https://funecap-digital-int.auth.eu-west-3.amazoncognito.com/oauth2/token
+            userinfo_endpoint: https://funecap-digital-int.auth.eu-west-3.amazoncognito.com/oauth2/userInfo
+
+        oph:
+          host: int.cloud.ophiliam.com
+          dnsexternal: false
+          certifcat: arn:aws:acm:eu-west-3:717592681600:certificate/be7083f8-74d2-4744-88e0-05e86350ec4a
+          name: oph
+          port: 80
+          oidc: 
+            authorization_endpoint: https://funecap-digital-int.auth.eu-west-3.amazoncognito.com/oauth2/authorize
+            issuer: https://cognito-idp.eu-west-3.amazonaws.com/eu-west-3_CSLO7MG7y
+            token_endpoint: https://funecap-digital-int.auth.eu-west-3.amazoncognito.com/oauth2/token
+            userinfo_endpoint: https://funecap-digital-int.auth.eu-west-3.amazoncognito.com/oauth2/userInfo
+
+
+        ec_rep:
+          host: int.espaceclient.roc-eclerc-prevoyance.fr
+          dnsexternal: false
+          certifcat: arn:aws:acm:eu-west-3:717592681600:certificate/8ca455ee-5fcb-47c5-a304-56f8b6b23f22
+          name: ec-rep
+          port: 80
+
+        fo_v3:
+          host: v3.int.cloud.france-obseques.fr
+          dnsexternal: false
+          certifcat: arn:aws:acm:eu-west-3:717592681600:certificate/d212e110-4e2e-4dfb-b39b-3b9e3446bf63
+          name: fo-v3
+          port: 80
+
+        rep_v3:
+          host: prevoyance.roc-eclerc-v3.int.funecap-ops.com
+          dnsexternal: false
+          certifcat: arn:aws:acm:eu-west-3:717592681600:certificate/ecd240ef-19ea-4716-b931-c909a5d5e2be
+          name: rep-v3
+          port: 80
+
+        france_obseques:
+          host: int.cloud.france-obseques.fr
+          dnsexternal: false
+          certifcat: arn:aws:acm:eu-west-3:717592681600:certificate/5af12edc-8e52-4d56-8a54-4cac2023a588
+          name: france-obseques
+          port: 80
+          oidc: 
+            authorization_endpoint: https://funecap-digital-int.auth.eu-west-3.amazoncognito.com/oauth2/authorize
+            issuer: https://cognito-idp.eu-west-3.amazonaws.com/eu-west-3_CSLO7MG7y
+            token_endpoint: https://funecap-digital-int.auth.eu-west-3.amazoncognito.com/oauth2/token
+            userinfo_endpoint: https://funecap-digital-int.auth.eu-west-3.amazoncognito.com/oauth2/userInfo
+
+        roc_eclerc_prevoyance:
+          host: prevoyance.int.cloud.roc-eclerc.fr
+          dnsexternal: false
+          certifcat: arn:aws:acm:eu-west-3:717592681600:certificate/bfdbd016-2511-44c1-bdef-a5ccd1588818
+          name: roc-eclerc-prevoyance
+          port: 80
+          oidc: 
+            authorization_endpoint: https://funecap-digital-int.auth.eu-west-3.amazoncognito.com/oauth2/authorize
+            issuer: https://cognito-idp.eu-west-3.amazonaws.com/eu-west-3_CSLO7MG7y
+            token_endpoint: https://funecap-digital-int.auth.eu-west-3.amazoncognito.com/oauth2/token
+            userinfo_endpoint: https://funecap-digital-int.auth.eu-west-3.amazoncognito.com/oauth2/userInfo
+
+        gdv-groupama:
+          host: gdv-groupama.int.funecap-ops.com
+          dnsexternal: false
+          certifcat: arn:aws:acm:eu-west-3:717592681600:certificate/45b69e4a-7f9e-47e4-8ba3-5c743e5d251b
+          name: gdv-groupama
+          port: 80
+
+    avdc:
+      name: avdc
+      namespace: avdc
+      cognito:
+        user_pool : arn:aws:cognito-idp:eu-west-3:717592681600:userpool/eu-west-3_CSLO7MG7y
+        domaine: digital-roc-eclerc
+        client_name: digital-transverse
+        client_id: NHNlMWI0dWo4aWljZmJxdXEzaGtrbDc2czg=
+        secret_id: ZmVjcXFzdDY4dTF0N2Zpa2Fkc3E3dmtkMDNnMW00aWhsZzNtdWJxN2swZTNoZjRwaHFv
+
+      services: 
+        core_avdc:
+          host: api.int.cloud.avis-de-deces.net
+          dnsexternal : false
+          certifcat: arn:aws:acm:eu-west-3:717592681600:certificate/54d508be-d7ec-440d-a9f0-098a5e250a6d
+          name: core-avdc
+          port: 80
+          oidc_off:
+            authorization_endpoint: 
+            issuer: 
+            token_endpoint: 
+            userinfo_endpoint:
+
+        front_avdc:
+          host: front.int.cloud.avis-de-deces.net
+          dnsexternal : false
+          certifcat: arn:aws:acm:eu-west-3:717592681600:certificate/1899ffb0-9fef-4c32-8958-5b11e18b94ca
+          name: front-avdc
+          port: 80
+          oidc_off:
+            authorization_endpoint: 
+            issuer: 
+            token_endpoint: 
+            userinfo_endpoint: 
+
+        fo_avdc:
+          host: fo.int.cloud.avis-de-deces.net
+          dnsexternal : false
+          certifcat: arn:aws:acm:eu-west-3:717592681600:certificate/ab08f794-0456-43ea-9792-af9abc4a7a5d
+          name: fo-avdc
+          port: 80
+          oidc_off:
+            authorization_endpoint: 
+            issuer: 
+            token_endpoint: 
+            userinfo_endpoint: 
+        
+        cc_avdc:
+          host: cc.int.cloud.avis-de-deces.net
+          dnsexternal : false
+          certifcat: arn:aws:acm:eu-west-3:717592681600:certificate/1899ffb0-9fef-4c32-8958-5b11e18b94ca
+          name: cc-avdc
+          port: 80
+          oidc_off:
+            authorization_endpoint: 
+            issuer: 
+            token_endpoint: 
+            userinfo_endpoint: 
+        
+        novelia:
+          host: novelia.int.cloud.avis-de-deces.net
+          dnsexternal : false
+          certifcat: arn:aws:acm:eu-west-3:717592681600:certificate/bbf7ea4b-d529-4110-a0b9-fea7cd0002a7
+          name: novelia
+          port: 80
+          oidc_off:
+            authorization_endpoint: 
+            issuer: 
+            token_endpoint: 
+            userinfo_endpoint: 
+
+        viventer:
+          host: vivinter.int.cloud.avis-de-deces.net
+          dnsexternal : false
+          certifcat: arn:aws:acm:eu-west-3:717592681600:certificate/b53770bb-08f8-4f81-b5fd-0aaa63f5228d
+          name: viventer
+          port: 80
+          oidc_off:
+            authorization_endpoint: 
+            issuer: 
+            token_endpoint: 
+            userinfo_endpoint:
+
+        ganprevoyance:
+          host: ganprevoyance.int.cloud.avis-de-deces.net
+          dnsexternal : false
+          certifcat: arn:aws:acm:eu-west-3:717592681600:certificate/f3427916-fec0-4cfc-9c41-0371b8982f8f
+          name: ganprevoyance
+          port: 80
+          oidc_off:
+            authorization_endpoint: 
+            issuer: 
+            token_endpoint: 
+            userinfo_endpoint:
+
+        gancollectif:
+          host: gancollectif.int.cloud.avis-de-deces.net
+          dnsexternal : false
+          certifcat: arn:aws:acm:eu-west-3:717592681600:certificate/41ac8a20-6f3a-4e06-8e8a-5753f87ca129
+          name: gancollectif
+          port: 80
+          oidc_off:
+            authorization_endpoint: 
+            issuer: 
+            token_endpoint: 
+            userinfo_endpoint:
+
+        malakoff:
+          host: malakoff.int.cloud.avis-de-deces.net
+          dnsexternal : false
+          certifcat: arn:aws:acm:eu-west-3:717592681600:certificate/7710b530-cedc-4b04-88c9-77a62ab07e1c
+          name: malakoff
+          port: 80
+          oidc_off:
+            authorization_endpoint: 
+            issuer: 
+            token_endpoint: 
+            userinfo_endpoint:
+
+        bo_avdc:
+          host: bo.int.cloud.avis-de-deces.net
+          dnsexternal : false
+          certifcat: arn:aws:acm:eu-west-3:717592681600:certificate/1899ffb0-9fef-4c32-8958-5b11e18b94ca
+          name: bo-avdc
+          port: 8080
+          oidc_off:
+            authorization_endpoint: 
+            issuer: 
+            token_endpoint: 
+            userinfo_endpoint:
+
+        usine:
+          host: usine.int.cloud.avis-de-deces.net
+          dnsexternal : false
+          certifcat: arn:aws:acm:eu-west-3:717592681600:certificate/21aa44fc-6f69-4bdc-a84a-d55e6e9c0896
+          name: usine-avdc
+          port: 80
+          oidc_off:
+            authorization_endpoint:
+            issuer:
+            token_endpoint:
+            userinfo_endpoint:
+
+    datamarket: 
+      name: datamarket
+      namespace: datamarket
+      #cognito:
+      #  user_pool : 
+      #  domaine: 
+      #  client_name: 
+      #  client_id: 
+      #  secret_id: 
+
+      services :
+        data_api_contract:
+          host: api-contract.int.datamarket.funecap.xyz
+          dnsexternal : false
+          certifcat: arn:aws:acm:eu-west-3:717592681600:certificate/7bd683bd-8cfa-4fae-8868-9f31643c772b
+          name: data-api-contract
+          port: 80
+          oidc-off: 
+            #authorization_endpoint: https://funecap-digital-int.auth.eu-west-3.amazoncognito.com/oauth2/authorize
+            #issuer: https://cognito-idp.eu-west-3.amazonaws.com/eu-west-3_CSLO7MG7y
+            #token_endpoint: https://funecap-digital-int.auth.eu-west-3.amazoncognito.com/oauth2/token
+            #userinfo_endpoint: https://funecap-digital-int.auth.eu-west-3.amazoncognito.com/oauth2/userInfo
+
+        data_api_references:
+          host: api-references.int.datamarket.funecap.xyz
+          dnsexternal : false
+          certifcat: arn:aws:acm:eu-west-3:717592681600:certificate/34e9139c-f2b9-4514-986d-327342affba4
+          name: data-api-references
+          port: 80
+          oidc-off:
+          #authorization_endpoint: https://funecap-digital-int.auth.eu-west-3.amazoncognito.com/oauth2/authorize
+          #issuer: https://cognito-idp.eu-west-3.amazonaws.com/eu-west-3_CSLO7MG7y
+          #token_endpoint: https://funecap-digital-int.auth.eu-west-3.amazoncognito.com/oauth2/token
+          #userinfo_endpoint: https://funecap-digital-int.auth.eu-west-3.amazoncognito.com/oauth2/userInfo
