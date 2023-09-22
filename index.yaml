@@ -3,12 +3,12 @@ entries:
   kibanadigital:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2023-09-22T10:53:18.331706325+02:00"
+    created: "2023-09-22T11:03:29.437052072+02:00"
     description: A Helm chart for kibanadigital utilities For the client app
     digest: 9c9fa942799b78101435b5acb40e09b223ad604b712faac1ba9f6abf8f21a62a
     name: kibanadigital
     type: application
     urls:
-    - https://github.com/Nadir24950/ingress-automation-helm/kibanadigital-0.2.0.tgz
+    - https://nadir24950.github.io/ingress-automation-helm/kibanadigital-0.2.0.tgz
     version: 0.2.0
-generated: "2023-09-22T10:53:18.329593725+02:00"
+generated: "2023-09-22T11:03:29.434763472+02:00"
