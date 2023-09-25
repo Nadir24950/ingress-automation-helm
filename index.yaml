@@ -3,12 +3,12 @@ entries:
   kibanadigital:
   - apiVersion: v2
     appVersion: 1.17.0
-    created: "2023-09-25T09:25:10.693550131+02:00"
-    description: A Helm chart for kibanadigital utilities For the client app
-    digest: 8b34cb24bdda17252501b685aed398017820716c83e0c17960516606fbbfc41b
+    created: "2023-09-25T10:10:23.210426236+02:00"
+    description: A helm chart for kibanagidtial, a utility in the architecture
+    digest: af0e317f419d3cbe0495bdc96f76803274a15459b632e54107f946e578cf43e6
     name: kibanadigital
     type: application
     urls:
-    - kibanadigital-0.3.0.tgz
-    version: 0.3.0
-generated: "2023-09-25T09:25:10.691583131+02:00"
+    - kibanadigital-0.4.0.tgz
+    version: 0.4.0
+generated: "2023-09-25T10:10:23.208213336+02:00"
